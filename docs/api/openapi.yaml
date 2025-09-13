@@ -1,0 +1,129 @@
+openapi: 3.0.3
+info:
+  title: PharmaLink API
+  version: 1.0.0
+  description: Public API for web and Telegram Mini App.
+servers:
+  - url: https://api.pharmalink.com/v1
+paths:
+  /auth/login-otp:
+    post:
+      summary: Request OTP to a phone number (start login / signup)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone]
+              properties:
+                phone:
+                  type: string
+                  description: "Phone number in international format (E.164 recommended)."
+                device_info:
+                  type: object
+                  description: "Optional device fingerprint for rate limiting"
+      responses:
+        '202':
+          description: OTP sent (or queued)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /auth/verify-otp:
+    post:
+      summary: Verify OTP and issue tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone, otp]
+              properties:
+                phone: { type: string }
+                otp: { type: string }
+                device_name:
+                  type: string
+      responses:
+        '200':
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken: { type: string }
+                  refreshToken: { type: string }
+                  user:
+                    type: object
+                    properties:
+                      id: { type: string }
+                      phone: { type: string }
+                      platform_username: { type: string }
+  /auth/telegram/link:
+    post:
+      summary: Link Telegram username to an existing phone-backed account (user must be authenticated)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [telegram_username, verification_method]
+              properties:
+                telegram_username: { type: string, description: "Telegram username without @." }
+                verification_method:
+                  type: string
+                  enum: [bot_message, login_widget_signature, otp]
+                  description: "How Telegram ownership is proven."
+                verification_payload:
+                  type: object
+                  description: "Payload according to verification_method (e.g., widget data or challenge code)."
+      responses:
+        '200':
+          description: Linked successfully
+  /auth/telegram/login:
+    post:
+      summary: Create or login using Telegram auth (only when phone is provided or user shared contact)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [telegram_payload]
+              properties:
+                telegram_payload:
+                  type: object
+                  description: "Telegram widget/initData or bot-provided contact payload. If phone exists, server will create/return tokens."
+      responses:
+        '200':
+          description: Authenticated via Telegram (if PHONE available)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken: { type: string }
+                  refreshToken: { type: string }
+                  user:
+                    $ref: '#/components/schemas/User'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        id: { type: string }
+        phone: { type: string }
+        telegram_username: { type: string, nullable: true }
+        platform_username: { type: string }
