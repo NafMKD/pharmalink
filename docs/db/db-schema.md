@@ -29,7 +29,7 @@
 - deleted_at datetime nullable
 ```
 
-### 3. Saas\_admins (platform-level admins)
+### 3. Saas\_users (platform-level users)
 
 ```
 - id int (pk)
@@ -44,9 +44,57 @@
 - deleted_at datetime nullable
 ```
 
+### 4. Subscriptions
+
+```
+- id int (pk)
+- tenant_id int (fk → tenants.id)
+- plan_id int (fk → plans.id)
+- status enum('active','past_due','cancelled') default 'active'
+- start_date datetime
+- end_date datetime nullable
+- renewal_date datetime nullable
+- created_at datetime
+- updated_at datetime
+- deleted_at datetime nullable
+```
+
+### 5. Invoices
+
+```
+- id int (pk)
+- tenant_id int (fk → tenants.id)
+- subscription_id int (fk → subscriptions.id)
+- invoice_number char unique
+- amount decimal
+- due_date datetime
+- status enum('pending','paid','failed') default 'pending'
+- issued_at datetime
+- paid_at datetime nullable
+- created_at datetime
+- updated_at datetime
+- deleted_at datetime nullable
+```
+
+### 6. Payments
+
+```
+- id int (pk)
+- tenant_id int (fk → tenants.id)
+- invoice_id int (fk → invoices.id)
+- payment_method enum('cash','bank_transfer')
+- amount decimal
+- status enum('pending','completed','failed') default 'pending'
+- paid_at datetime nullable
+- transaction_reference char nullable
+- created_at datetime
+- updated_at datetime
+- deleted_at datetime nullable
+```
+
 ---
 
-## 4. Users (tenant-level, OTP login)
+## 7. Users (tenant-level, OTP login)
 
 ```
 - id int (pk)
@@ -60,7 +108,7 @@
 - deleted_at datetime nullable
 ```
 
-## 5. Businesses
+## 8. Businesses
 
 ```
 - id int (pk)
@@ -78,7 +126,7 @@
 - deleted_at datetime nullable
 ```
 
-## 6. Product Categories
+## 9. Product Categories
 
 ```
 - id int (pk)
@@ -90,7 +138,7 @@
 - deleted_at datetime nullable
 ```
 
-## 7. Products 
+## 10. Products 
 
 ```
 - id int (pk)
@@ -116,7 +164,7 @@
 - deleted_at datetime nullable
 ```
 
-## 8. Salesperson Links
+## 11. Salesperson Links
 
 ```
 - id int (pk)
@@ -134,7 +182,7 @@
 
 --- 
 
-### 9. Chats
+### 12. Chats
 
 ```
 - id int (pk)
@@ -151,7 +199,7 @@
 - deleted_at datetime nullable
 ```
 
-### 10. Messages
+### 13. Messages
 
 ```
 - id int (pk)
@@ -166,7 +214,7 @@
 - deleted_at datetime nullable
 ```
 
-### 11. Message Attachments
+### 14. Message Attachments
 
 ```
 - id int (pk)
@@ -181,7 +229,7 @@
 
 --- 
 
-## 12.Moderation
+## 15.Moderation
 
 ```
 - id int (pk)
@@ -197,13 +245,13 @@
 - deleted_at datetime nullable
 ```
 
-## 13. Audit Trail
+## 16. Audit Trail
 
 ```
 - id int (pk)
 - tenant_id int nullable (fk → tenants.id)
 - user_id int nullable (fk → users.id) -- tracks both SaaS and tenant users
-- saas_admins int nullable (fk → saas_admins.id) -- tracks both SaaS and tenant users
+- saas_users int nullable (fk → saas_users.id) -- tracks both SaaS and tenant users
 - action enum('create','update','delete','login','approve','reject')
 - auditable_type char -- e.g., 'products', 'users', 'businesses'
 - auditable_id int -- record id
