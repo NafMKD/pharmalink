@@ -18,9 +18,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'tenant_id','phone','role', 'otp', 'is_active','email'
     ];
 
     /**
@@ -43,6 +41,42 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
+    }
+
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class);
+    }
+
+    public function businesses()
+    {
+        return $this->hasMany(Business::class);
+    }
+
+    public function salesLinks()
+    {
+        return $this->hasMany(SalespersonLink::class, 'salesperson_id');
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    public function chatsAsBuyer()
+    {
+        return $this->hasMany(Chat::class, 'buyer_id');
+    }
+
+    public function chatsAsSeller()
+    {
+        return $this->hasMany(Chat::class, 'seller_id');
+    }
+
+    public function auditTrails()
+    {
+        return $this->hasMany(AuditTrail::class);
     }
 }
