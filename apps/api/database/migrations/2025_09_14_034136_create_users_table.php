@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->foreignId('tenant_id')->nullable()->constrained('tenants')->cascadeOnDelete();
             $table->string('phone')->unique();
-            $table->enum('role', ['importer','wholesaler','supplier','pharmacy','sales_person']);
+            $table->enum('role', ['importer','wholesaler','supplier','pharmacy','sales_person'])->nullable();
             $table->string('otp')->nullable();
+            $table->timestamp('otp_expires_at')->nullable();
+            $table->timestamp('phone_verified_at')->nullable();
             $table->boolean('is_active')->default(true);
             $table->string('email')->nullable()->unique();
             $table->timestamps();

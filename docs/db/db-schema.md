@@ -98,10 +98,13 @@
 
 ```
 - id int (pk)
-- tenant_id int (fk → tenants.id)
+- tenant_id int nullable (fk → tenants.id)
 - phone char unique -- login via OTP
-- role enum('importer','wholesaler','supplier','pharmacy','sales_person')
+- role enum('importer','wholesaler','supplier','pharmacy','sales_person') nullable
 - is_active boolean default true
+- otp char nullable
+- otp_expires_at datetime nullable
+- phone_verified_at datetime nullable
 - email char nullable unique
 - created_at datetime
 - updated_at datetime
