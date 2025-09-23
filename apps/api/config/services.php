@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'afromessage' => [
+        'url' => env('AFROMESSAGE_API_URL', 'https://afromessage.com/api/send'),
+        'key' => env('AFROMESSAGE_API_KEY'),
+        'identifier_id' => env('AFROMESSAGE_IDENTIFIER_ID'), 
+    ],
+    
+    
+
 ];
